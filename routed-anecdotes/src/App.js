@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useField } from './hooks/index';
 import { BrowserRouter as Router, Switch, Route, Link, useParams, useHistory } from 'react-router-dom';
 
 const Menu = () => {
@@ -46,21 +47,31 @@ const Footer = () => (
 )
 
 const CreateNew = (props) => {
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
+  const content = useField('text')
+  const author = useField('text')
+  const info = useField('text')
+
+  const contentToPass = { ...content, reset: undefined }
+  const authorToPass = { ...author, reset: undefined }
+  const infoToPass = { ...info, reset: undefined }
 
   const history = useHistory()
 
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.value,
+      author: author.value,
+      info: info.value,
       votes: 0
     })
     history.push('/')
+  }
+
+  const clearFields = () => {
+    content.reset()
+    author.reset()
+    info.reset()
   }
 
   return (
@@ -69,17 +80,17 @@ const CreateNew = (props) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
+          <input name='content' {...contentToPass} />
         </div>
         <div>
           author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <input name='author' {...authorToPass} />
         </div>
         <div>
           url for more info
-          <input name='info' value={info} onChange={(e) => setInfo(e.target.value)} />
+          <input name='info' {...infoToPass} />
         </div>
-        <button>create</button>
+        <button type='submit'>create</button> <button type='button' onClick={clearFields}>reset</button>
       </form>
     </div>
   )
@@ -94,7 +105,7 @@ const Anecdote = ({ anecdotes }) => {
       <br />
       <h2>{anecdote.content}</h2>
       <div>has {anecdote.votes} votes</div>
-      <div>for more info, see: <a href={anecdote.info} target='_blank'>{anecdote.info}</a></div>
+      <div>for more info, see: <a href={anecdote.info} target='_blank' rel="noopener noreferrer">{anecdote.info}</a></div>
       <br />
     </>
   )
